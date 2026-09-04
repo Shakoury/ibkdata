@@ -7,19 +7,13 @@ import { useTransactionStore } from '@/store/transactionStore';
 import { useToast } from '@/hooks/useToast';
 import { extractError } from '@/api/client';
 import { formatNaira } from '@/utils/format';
-import { Button } from '@/components/ui/Spinner';
+import { Button, Spinner } from '@/components/ui/Spinner';
+import { useDataPlans } from '@/hooks/useServices';
 import { PinPad } from '@/components/PinPad';
 import { InsufficientBalanceModal } from '@/components/InsufficientBalanceModal';
 import { Modal } from '@/components/ui/Modal';
 
 const networks = ['MTN', 'Airtel', 'Glo', '9mobile'];
-const plans = [
-  { id: '500mb', label: '500MB', amount: 200 },
-  { id: '1gb', label: '1GB', amount: 350 },
-  { id: '2gb', label: '2GB', amount: 650 },
-  { id: '5gb', label: '5GB', amount: 1500 },
-  { id: '10gb', label: '10GB', amount: 3000 },
-];
 
 export function BuyDataPage() {
   const navigate = useNavigate();
@@ -30,7 +24,8 @@ export function BuyDataPage() {
 
   const [phone, setPhone] = useState('');
   const [network, setNetwork] = useState('');
-  const [plan, setPlan] = useState<typeof plans[0] | null>(null);
+  const [plan, setPlan] = useState<any>(null);
+  const { data: plansData, isLoading: plansLoading } = useDataPlans(network);
   const [pinOpen, setPinOpen] = useState(false);
   const [insufficient, setInsufficient] = useState(false);
   const [success, setSuccess] = useState(false);
