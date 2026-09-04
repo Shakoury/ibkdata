@@ -42,12 +42,7 @@ SPECTACULAR_SETTINGS['SERVERS'] = [
 
 
 # Email Configuration
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.resend.com'
-EMAIL_PORT = 465
-EMAIL_HOST_USER = 'resend'
-EMAIL_HOST_PASSWORD = os.environ.get('RESEND_API_KEY', '')
-EMAIL_USE_TLS = False
-EMAIL_USE_SSL = True
+EMAIL_BACKEND = 'core.email_backend.ResendEmailBackend'
+RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')
 DEFAULT_FROM_EMAIL = 'IBKDATA <onboarding@resend.dev>'
 FRONTEND_URL = 'https://ibkdata.com'
