@@ -1,6 +1,5 @@
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Home, Receipt, Plus, History, User, Bell } from 'lucide-react';
-import { useAuthStore } from '@/store/authStore';
+import { Home, Receipt, Plus, History, User } from 'lucide-react';
 
 const navItems = [
   { to: '/app', label: 'Home', icon: Home },
@@ -13,31 +12,12 @@ const navItems = [
 export function CustomerLayout() {
   const navigate = useNavigate();
   const location = useLocation();
-  const user = useAuthStore((s) => s.user);
+
   return (
     <div className="min-h-screen bg-cream max-w-md mx-auto flex flex-col">
-      {/* Top Header */}
-      <header className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-b border-border z-40 px-5 h-14 flex items-center justify-between">
-        <div>
-          <p className="text-xs text-muted">Welcome back</p>
-          <p className="font-semibold text-sm text-ink">{user?.first_name} {user?.last_name}</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate('/app/profile')}
-            className="w-9 h-9 rounded-full bg-accent/10 flex items-center justify-center"
-          >
-            <span className="text-accent font-bold text-sm">
-              {user?.first_name?.[0]}{user?.last_name?.[0]}
-            </span>
-          </button>
-        </div>
-      </header>
-
-      <main className="flex-1 pb-20 pt-14">
+      <main className="flex-1 pb-20">
         <Outlet />
       </main>
-
       <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-border z-40">
         <div className="flex justify-around items-center h-16">
           {navItems.map((item) => {
