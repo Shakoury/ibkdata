@@ -1,8 +1,13 @@
 import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { Phone, Wifi, Zap, Tv, Shield, Clock, Star, Smartphone } from 'lucide-react';
+import { useAuthStore } from '@/store/authStore';
 
 export function LandingPage() {
   const navigate = useNavigate();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const user = useAuthStore((s) => s.user);
+
   return (
     <div className="min-h-screen bg-cream text-ink">
       {/* Header */}
@@ -13,20 +18,34 @@ export function LandingPage() {
           </div>
           <span className="font-bold text-lg text-ink">IBKDATA</span>
         </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => navigate('/login')}
-            className="px-4 py-2 text-sm font-medium text-muted hover:text-ink transition-colors"
-          >
-            Sign In
-          </button>
-          <button
-            onClick={() => navigate('/register')}
-            className="btn-primary px-4 py-2 text-sm"
-          >
-            Get Started
-          </button>
-        </div>
+        {isAuthenticated && user ? (
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-ink">{user.first_name} {user.last_name}</span>
+            <button
+              onClick={() => navigate('/app')}
+              className="w-9 h-9 rounded-full bg-accent flex items-center justify-center"
+            >
+              <span className="text-white font-bold text-sm">
+                {user.first_name?.[0]}{user.last_name?.[0]}
+              </span>
+            </button>
+          </div>
+        ) : (
+          <div className="flex gap-2">
+            <button
+              onClick={() => navigate('/login')}
+              className="px-4 py-2 text-sm font-medium text-muted hover:text-ink transition-colors"
+            >
+              Sign In
+            </button>
+            <button
+              onClick={() => navigate('/register')}
+              className="btn-primary px-4 py-2 text-sm"
+            >
+              Get Started
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Hero */}
@@ -40,18 +59,29 @@ export function LandingPage() {
         <p className="text-muted mb-8 text-sm leading-relaxed">
           Nigeria fastest VTU platform. Fund your wallet and pay for any service in seconds, 24/7.
         </p>
-        <button
-          onClick={() => navigate('/register')}
-          className="btn-primary w-full text-base py-3"
-        >
-          Create Free Account
-        </button>
-        <button
-          onClick={() => navigate('/login')}
-          className="btn-secondary w-full text-base py-3 mt-3"
-        >
-          Sign In
-        </button>
+        {isAuthenticated ? (
+          <button
+            onClick={() => navigate('/app')}
+            className="btn-primary w-full text-base py-3"
+          >
+            Go to Dashboard
+          </button>
+        ) : (
+          <>
+            <button
+              onClick={() => navigate('/register')}
+              className="btn-primary w-full text-base py-3"
+            >
+              Create Free Account
+            </button>
+            <button
+              onClick={() => navigate('/login')}
+              className="btn-secondary w-full text-base py-3 mt-3"
+            >
+              Sign In
+            </button>
+          </>
+        )}
       </div>
 
       {/* Services */}
@@ -59,10 +89,10 @@ export function LandingPage() {
         <h2 className="font-semibold text-base mb-4">Our Services</h2>
         <div className="grid grid-cols-2 gap-3">
           {[
-            { icon: Phone, label: 'Airtime', desc: 'MTN, Glo, Airtel, 9mobile' },
-            { icon: Wifi, label: 'Data Bundles', desc: 'All networks' },
-            { icon: Zap, label: 'Electricity', desc: 'All DISCOs' },
-            { icon: Tv, label: 'Cable TV', desc: 'DSTV, GOTV, Startimes' },
+            { icon: Phone, label: "Airtime", desc: "MTN, Glo, Airtel, 9mobile" },
+            { icon: Wifi, label: "Data Bundles", desc: "All networks" },
+            { icon: Zap, label: "Electricity", desc: "All DISCOs" },
+            { icon: Tv, label: "Cable TV", desc: "DSTV, GOTV, Startimes" },
           ].map(({ icon: Icon, label, desc }) => (
             <div key={label} className="card flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
@@ -82,9 +112,9 @@ export function LandingPage() {
         <h2 className="font-semibold text-base mb-4">Why IBKDATA?</h2>
         <div className="space-y-3">
           {[
-            { icon: Clock, title: 'Instant Delivery', desc: 'Transactions processed in seconds, 24/7.' },
-            { icon: Shield, title: 'Secure & Reliable', desc: 'Bank-grade security with Monnify integration.' },
-            { icon: Star, title: 'Best Rates', desc: 'Competitive prices on all VTU services.' },
+            { icon: Clock, title: "Instant Delivery", desc: "Transactions processed in seconds, 24/7." },
+            { icon: Shield, title: "Secure & Reliable", desc: "Bank-grade security with Monnify integration." },
+            { icon: Star, title: "Best Rates", desc: "Competitive prices on all VTU services." },
           ].map(({ icon: Icon, title, desc }) => (
             <div key={title} className="card flex items-center gap-4">
               <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
