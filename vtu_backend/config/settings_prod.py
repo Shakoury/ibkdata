@@ -44,5 +44,5 @@ SPECTACULAR_SETTINGS['SERVERS'] = [
 # Email Configuration
 EMAIL_BACKEND = 'core.email_backend.ResendEmailBackend'
 RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')
-DEFAULT_FROM_EMAIL = 'IBKDATA <onboarding@resend.dev>'
+DEFAULT_FROM_EMAIL = 'IBKDATA <noreply@ibkdata.com>'
 FRONTEND_URL = 'https://ibkdata.com'
