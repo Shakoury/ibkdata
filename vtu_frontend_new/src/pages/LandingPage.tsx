@@ -19,15 +19,15 @@ export function LandingPage() {
           </div>
           <span className="font-bold text-lg text-ink">IBKDATA</span>
         </div>
-        {isAuthenticated && user ? (
+        {isAuthenticated ? (
           <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-ink">{user.first_name} {user.last_name}</span>
+            {user && <span className="text-sm font-medium text-ink">{user.first_name} {user.last_name}</span>}
             <button
               onClick={() => navigate('/app')}
               className="w-9 h-9 rounded-full bg-accent flex items-center justify-center"
             >
               <span className="text-white font-bold text-sm">
-                {user.first_name?.[0]}{user.last_name?.[0]}
+                {user ? `${user.first_name?.[0]}${user.last_name?.[0]}` : '👤'}
               </span>
             </button>
           </div>
