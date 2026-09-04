@@ -3,11 +3,13 @@ import { useEffect } from 'react';
 import { Phone, Wifi, Zap, Tv, Shield, Clock, Star, Smartphone } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { tokenStorage } from '@/api/client';
+import { useProfile } from '@/hooks/useAuth';
 
 export function LandingPage() {
   const navigate = useNavigate();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated) || !!tokenStorage.getAccess();
   const user = useAuthStore((s) => s.user);
+  useProfile(); // loads user into store if token exists
 
   return (
     <div className="min-h-screen bg-cream text-ink">
