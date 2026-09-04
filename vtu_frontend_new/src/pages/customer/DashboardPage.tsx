@@ -38,11 +38,18 @@ export function DashboardPage() {
 
       {/* Balance card */}
       <div className="card mt-4 bg-ink text-white">
-        <p className="text-sm text-white/60">Wallet Balance</p>
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-white/60">Wallet Balance</p>
+          <button onClick={() => setShowBalance(!showBalance)} className="text-white/60 hover:text-white">
+            {showBalance ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        </div>
         {balance.isLoading ? (
-          <Spinner size={20} className="text-white/60" />
+          <Spinner size={20} className="text-white/60 mt-1" />
         ) : (
-          <p className="text-3xl font-bold mt-1">{formatNaira(balance.data ?? 0)}</p>
+          <p className="text-3xl font-bold mt-1">
+            {showBalance ? formatNaira(balance.data ?? 0) : '₦ ****'}
+          </p>
         )}
         <button
           onClick={() => navigate('/app/fund')}
