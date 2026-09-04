@@ -38,7 +38,13 @@ export function LoginPage() {
         window.location.href = result.user.is_staff ? '/admin' : '/app';
       }
     } catch (err) {
-      toast.error(extractError(err));
+      const errMsg = extractError(err);
+      if (errMsg.toLowerCase().includes('not verified') || errMsg.toLowerCase().includes('verify')) {
+        const email = form.identifier;
+        window.location.href = '/verify-email?email=' + encodeURIComponent(email);
+      } else {
+        toast.error(errMsg);
+      }
       const next = attempts + 1;
       setAttempts(next);
       if (next >= MAX_ATTEMPTS) {
