@@ -4,7 +4,7 @@ import { Smartphone } from 'lucide-react';
 import { useLogin } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { useCooldown } from '@/hooks/useCooldown';
-import { extractError } from '@/api/client';
+import { extractError, tokenStorage } from '@/api/client';
 import { Button } from '@/components/ui/Spinner';
 
 const MAX_ATTEMPTS = 5;
@@ -41,6 +41,7 @@ export function LoginPage() {
       const data = err?.response?.data;
       if (data?.not_verified) {
         const email = data.email || form.identifier;
+        tokenStorage.clear();
         window.location.href = '/verify-email?email=' + encodeURIComponent(email);
       } else {
         toast.error(extractError(err));
