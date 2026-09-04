@@ -103,7 +103,7 @@ export function BuyDataPage() {
         <div>
           <label className="text-sm font-medium block mb-1.5">Data Plan</label>
           <div className="space-y-2">
-            {plans.map((p) => (
+            {(plansData ?? []).map((p: any) => (
               <button
                 key={p.id}
                 onClick={() => setPlan(p)}
