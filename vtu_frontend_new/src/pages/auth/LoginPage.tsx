@@ -37,13 +37,13 @@ export function LoginPage() {
       } else {
         window.location.href = result.user.is_staff ? '/admin' : '/app';
       }
-    } catch (err) {
-      const errMsg = extractError(err);
-      if (errMsg.toLowerCase().includes('not verified') || errMsg.toLowerCase().includes('verify')) {
-        const email = form.identifier;
+    } catch (err: any) {
+      const data = err?.response?.data;
+      if (data?.not_verified) {
+        const email = data.email || form.identifier;
         window.location.href = '/verify-email?email=' + encodeURIComponent(email);
       } else {
-        toast.error(errMsg);
+        toast.error(extractError(err));
       }
       const next = attempts + 1;
       setAttempts(next);

@@ -189,5 +189,5 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         data = super().validate(attrs)
         if not self.user.is_verified:
             from rest_framework import serializers as s
-            raise s.ValidationError({"detail": "Email not verified. Please verify your email first."})
+            raise s.ValidationError({"detail": "Email not verified.", "email": self.user.email, "not_verified": True})
         return data
