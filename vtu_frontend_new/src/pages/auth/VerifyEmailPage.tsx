@@ -12,7 +12,8 @@ export function VerifyEmailPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const toast = useToast();
-  const email = (location.state as { email?: string })?.email || '';
+  const searchParams = new URLSearchParams(location.search);
+  const email = (location.state as { email?: string })?.email || searchParams.get('email') || '';
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const cooldown = useCooldown(RESEND_COOLDOWN);
@@ -37,9 +38,13 @@ export function VerifyEmailPage() {
 
   const resend = async () => {
     if (cooldown.isCoolingDown) return;
+    if (!email) {
+      toast.error('Email not found. Please register again.');
+      return;
+    }
     try {
       await authService.resendVerification(email);
-      toast.success('Verification code resent.');
+      toast.success('Verification code resent. Check your email.');
       cooldown.start();
     } catch (err) {
       toast.error(extractError(err));
@@ -50,9 +55,8 @@ export function VerifyEmailPage() {
     <div className="min-h-screen bg-cream flex flex-col justify-center px-6 py-10 max-w-md mx-auto">
       <h1 className="text-2xl font-bold mb-1">Verify your email</h1>
       <p className="text-muted mb-6">
-        Enter the 6-digit code sent to <span className="font-medium text-ink">{email}</span>
+        Enter the 6-digit code sent to <span className="font-medium text-ink">{email || 'your email'}</span>
       </p>
-
       <form onSubmit={verify} className="space-y-4">
         <input
           className="input-field text-center text-2xl tracking-widest"
@@ -65,7 +69,6 @@ export function VerifyEmailPage() {
         />
         <Button type="submit" loading={loading} className="w-full">Verify Email</Button>
       </form>
-
       <button
         onClick={resend}
         disabled={cooldown.isCoolingDown}
