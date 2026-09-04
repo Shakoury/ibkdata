@@ -2,10 +2,11 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { Phone, Wifi, Zap, Tv, Shield, Clock, Star, Smartphone } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
+import { tokenStorage } from '@/api/client';
 
 export function LandingPage() {
   const navigate = useNavigate();
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated) || !!tokenStorage.getAccess();
   const user = useAuthStore((s) => s.user);
 
   return (
