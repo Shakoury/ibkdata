@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+*.db
+*.sqlite
+*.sqlite3
+.env
+venv/
+.venv/
+logs/
+dump.rdb
+vtu_db_backup.sql
+staticfiles/
+vtu_backend/.env

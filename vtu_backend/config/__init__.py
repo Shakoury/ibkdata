@@ -1,0 +1,7 @@
+"""
+Ensure the celery app is loaded when Django starts
+File: config/__init__.py
+"""
+from .celery import app as celery_app
+
+__all__ = ('celery_app',)
