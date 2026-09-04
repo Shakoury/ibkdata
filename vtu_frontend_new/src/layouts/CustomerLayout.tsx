@@ -1,8 +1,6 @@
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { Home, Receipt, Plus, History, User, Bell } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
-import { useBalance } from '@/hooks/useWallet';
-import { formatNaira } from '@/utils/format';
 
 const navItems = [
   { to: '/app', label: 'Home', icon: Home },
@@ -16,8 +14,6 @@ export function CustomerLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const user = useAuthStore((s) => s.user);
-  const balance = useBalance();
-
   return (
     <div className="min-h-screen bg-cream max-w-md mx-auto flex flex-col">
       {/* Top Header */}
@@ -27,12 +23,6 @@ export function CustomerLayout() {
           <p className="font-semibold text-sm text-ink">{user?.first_name} {user?.last_name}</p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="text-right">
-            <p className="text-xs text-muted">Balance</p>
-            <p className="font-semibold text-sm text-accent">
-              {balance.isLoading ? '...' : formatNaira(balance.data ?? 0)}
-            </p>
-          </div>
           <button
             onClick={() => navigate('/app/profile')}
             className="w-9 h-9 rounded-full bg-accent/10 flex items-center justify-center"
