@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import { Phone, Wifi, Zap, Tv, Plus, ArrowUpRight } from 'lucide-react';
+import { Phone, Wifi, Zap, Tv, Plus, ArrowUpRight, Eye, EyeOff } from 'lucide-react';
+import { useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { useBalance } from '@/hooks/useWallet';
 import { useTransactions } from '@/hooks/useTransactions';
@@ -25,6 +26,7 @@ const typeColors: Partial<Record<TransactionType, string>> = {
 export function DashboardPage() {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
+  const [showBalance, setShowBalance] = useState(true);
   const balance = useBalance();
   const transactions = useTransactions({ page_size: 5 });
 
