@@ -33,3 +33,9 @@ CSRF_COOKIE_SECURE = True
 
 # Logging
 LOGGING['handlers']['file']['filename'] = '/tmp/vtu_platform.log'
+
+
+# Override Swagger server for production
+SPECTACULAR_SETTINGS['SERVERS'] = [
+    {'url': 'https://api.ibkdata.com', 'description': 'Production Server'},
+]
