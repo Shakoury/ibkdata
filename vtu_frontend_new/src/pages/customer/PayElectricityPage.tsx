@@ -85,7 +85,7 @@ export function PayElectricityPage() {
           <label className="text-sm font-medium block mb-1.5">Provider</label>
           <select className="input-field" value={provider} onChange={(e) => setProvider(e.target.value)}>
             <option value="">Select provider</option>
-            {providers.map((p) => <option key={p} value={p}>{p.name}</option>)}
+            {providersList.map((p: any) => <option key={p.id} value={p.code}>{p.name}</option>)}
           </select>
         </div>
 
