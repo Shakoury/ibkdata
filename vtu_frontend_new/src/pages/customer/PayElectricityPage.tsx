@@ -9,10 +9,10 @@ import { extractError } from '@/api/client';
 import { formatNaira } from '@/utils/format';
 import { Button } from '@/components/ui/Spinner';
 import { PinPad } from '@/components/PinPad';
+import { useElectricityProviders } from '@/hooks/useServices';
 import { InsufficientBalanceModal } from '@/components/InsufficientBalanceModal';
 import { Modal } from '@/components/ui/Modal';
 
-const providers = ['IKEDC', 'EKEDC', 'Eko Disco', 'AEDC', 'IBEDC', 'PHED'];
 const meterTypes = ['prepaid', 'postpaid'] as const;
 
 export function PayElectricityPage() {
@@ -29,6 +29,8 @@ export function PayElectricityPage() {
   const [pinOpen, setPinOpen] = useState(false);
   const [insufficient, setInsufficient] = useState(false);
   const [success, setSuccess] = useState(false);
+  const { data: providersData } = useElectricityProviders();
+  const providersList = providersData ?? [];
 
   const currentBalance = balance.data ?? 0;
   const numAmount = typeof amount === 'number' ? amount : 0;
@@ -83,7 +85,7 @@ export function PayElectricityPage() {
           <label className="text-sm font-medium block mb-1.5">Provider</label>
           <select className="input-field" value={provider} onChange={(e) => setProvider(e.target.value)}>
             <option value="">Select provider</option>
-            {providers.map((p) => <option key={p} value={p}>{p}</option>)}
+            {providers.map((p) => <option key={p} value={p}>{p.name}</option>)}
           </select>
         </div>
 

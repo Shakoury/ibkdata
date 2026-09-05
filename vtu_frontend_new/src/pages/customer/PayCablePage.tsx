@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, CheckCircle } from 'lucide-react';
 import { usePayCable } from '@/hooks/useTransactions';
+import { useCableTVProviders } from '@/hooks/useServices';
 import { useBalance } from '@/hooks/useWallet';
 import { useTransactionStore } from '@/store/transactionStore';
 import { useToast } from '@/hooks/useToast';
@@ -12,7 +13,6 @@ import { PinPad } from '@/components/PinPad';
 import { InsufficientBalanceModal } from '@/components/InsufficientBalanceModal';
 import { Modal } from '@/components/ui/Modal';
 
-const providers = ['DSTV', 'GOTV', 'Startimes'];
 
 const packages: Record<string, { id: string; label: string; amount: number }[]> = {
   DSTV: [
@@ -47,6 +47,8 @@ export function PayCablePage() {
   const [pinOpen, setPinOpen] = useState(false);
   const [insufficient, setInsufficient] = useState(false);
   const [success, setSuccess] = useState(false);
+  const { data: providersData } = useCableTVProviders();
+  const providersList = providersData ?? [];
 
   const currentBalance = balance.data ?? 0;
   const canProceed = provider && smartCard && pkg;
@@ -93,12 +95,12 @@ export function PayCablePage() {
         <div>
           <label className="text-sm font-medium block mb-1.5">Provider</label>
           <div className="grid grid-cols-3 gap-2">
-            {providers.map((p) => (
+            {providersList.map((p: any) => (
               <button
                 key={p}
                 onClick={() => { setProvider(p); setPkg(null); }}
                 className={`py-2 rounded-btn text-sm font-medium border transition-colors ${
-                  provider === p ? 'bg-accent text-white border-accent' : 'bg-white border-border'
+                  provider === p.code ? 'bg-accent text-white border-accent' : 'bg-white border-border'
                 }`}
               >
                 {p}
