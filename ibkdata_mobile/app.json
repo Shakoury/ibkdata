@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "IBKDATA",
+    "slug": "ibkdata-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "ibkdata",
+    "userInterfaceStyle": "light",
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundColor": "#F5F0EB"
+      },
+      "package": "com.ibkdata.app"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.ibkdata.app"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-font",
+      "expo-splash-screen",
+      "expo-status-bar"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
