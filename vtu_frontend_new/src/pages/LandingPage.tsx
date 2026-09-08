@@ -138,6 +138,7 @@ export function LandingPage() {
         <div className="flex justify-center gap-4 mt-3">
           <button onClick={() => navigate('/privacy')} className="text-xs text-accent font-medium">Privacy Policy</button>
           <button onClick={() => navigate('/terms')} className="text-xs text-accent font-medium">Terms of Service</button>
+          <button onClick={() => navigate('/contact')} className="text-xs text-accent font-medium">Contact Us</button>
         </div>
       </div>
     </div>
