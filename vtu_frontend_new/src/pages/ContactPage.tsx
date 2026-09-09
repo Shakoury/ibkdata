@@ -23,6 +23,11 @@ export function ContactPage() {
           <h2 className="font-semibold text-ink mb-2">WhatsApp & Phone</h2>
           <p>Call us or send a message on WhatsApp at <a href="tel:09165369584" className="text-accent font-medium">09165369584</a></p>
         </div>
+
+        <div className="card">
+          <h2 className="font-semibold text-ink mb-2">Our Location</h2>
+          <p>Kademi Gunda, Gaya LG, Kano State</p>
+        </div>
       </div>
     </div>
   );
