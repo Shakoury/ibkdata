@@ -23,12 +23,10 @@ export const queryKeys = {
   providers: (type?: string) => ['providers', type] as const,
   dataPlans: (provider?: string) => ['dataPlans', provider] as const,
   cablePackages: (provider?: string) => ['cablePackages', provider] as const,
-  fundRequests: (filters?: Record<string, unknown>) => ['fundRequests', filters] as const,
   bankDetails: () => ['bankDetails'] as const,
   walletHistory: (filters?: Record<string, unknown>) => ['walletHistory', filters] as const,
   adminStats: () => ['adminStats'] as const,
   adminUsers: (filters?: Record<string, unknown>) => ['adminUsers', filters] as const,
   adminTransactions: (filters?: Record<string, unknown>) => ['adminTransactions', filters] as const,
-  adminFundRequests: (filters?: Record<string, unknown>) => ['adminFundRequests', filters] as const,
   dailyVolume: () => ['dailyVolume'] as const,
 };

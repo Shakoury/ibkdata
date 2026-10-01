@@ -1,18 +1,17 @@
 """
-Services views - Monnify payment gateway, catalog queries, and platform monitoring
+Services views - Paystack payment gateway, catalog queries, and platform monitoring
 File: services/views.py
 """
 import logging
 from decimal import Decimal
-from django.db import transaction as db_transaction
 from django.db.models import Sum, Count
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
-from .models import WalletFunding, ElectricityProvider, CableTVProvider, DataPlan, Provider
+from .models import ElectricityProvider, CableTVProvider, DataPlan, Provider
 from .provider_service import ProviderService
-from wallet.monnify import MonnifyService
+from wallet.paystack import PaystackService
 from wallet.models import Wallet
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiTypes
 
@@ -21,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 @extend_schema(
     summary="Get or create virtual bank account for wallet funding",
-    description="Returns the user dedicated Monnify virtual account for bank transfers.",
+    description="Returns the user dedicated Paystack virtual account for bank transfers.",
     responses={200: OpenApiTypes.OBJECT},
     tags=["Payments"]
 )
@@ -30,11 +29,11 @@ logger = logging.getLogger(__name__)
 def get_virtual_account(request):
     wallet, _ = Wallet.objects.get_or_create(user=request.user)
     if not wallet.account_number:
-        result = MonnifyService.get_or_create_reserved_account(wallet)
+        result = PaystackService.get_or_create_reserved_account(wallet)
         if not result:
             return Response(
-                {"error": "Could not provision virtual account. Please try again later."},
-                status=status.HTTP_502_BAD_GATEWAY
+                {"error": "Your account is being set up. Please check again in a minute."},
+                status=status.HTTP_202_ACCEPTED
             )
         wallet.refresh_from_db()
     return Response({
@@ -135,7 +134,6 @@ def admin_stats_view(request):
         "total_transactions": Transaction.objects.count(),
         "total_revenue": Transaction.objects.filter(status="SUCCESS").aggregate(Sum("amount"))["amount__sum"] or 0,
         "active_users": User.objects.filter(is_active=True).count(),
-        "pending_fund_requests": WalletFunding.objects.filter(status="pending").count(),
     })
 
 
@@ -174,40 +172,6 @@ def admin_wallet_adjust_view(request):
 
 @api_view(["GET"])
 @permission_classes([IsAdminUser])
-def admin_list_fund_requests(request):
-    status_filter = request.query_params.get("status", "pending")
-    fundings = WalletFunding.objects.filter(status=status_filter).order_by("-created_at")
-    return Response(list(fundings.values("id", "user", "amount", "reference", "status", "created_at")))
-
-
-@api_view(["POST"])
-@permission_classes([IsAdminUser])
-def admin_approve_fund_request(request, pk):
-    try:
-        funding = WalletFunding.objects.get(pk=pk, status="pending")
-    except WalletFunding.DoesNotExist:
-        return Response({"error": "Not found"}, status=404)
-    with db_transaction.atomic():
-        funding.status = "success"
-        funding.save()
-        funding.user.wallet.credit(funding.amount, description=f"Admin approved funding: {funding.reference}")
-    return Response({"message": "Fund request approved"})
-
-
-@api_view(["POST"])
-@permission_classes([IsAdminUser])
-def admin_reject_fund_request(request, pk):
-    try:
-        funding = WalletFunding.objects.get(pk=pk, status="pending")
-    except WalletFunding.DoesNotExist:
-        return Response({"error": "Not found"}, status=404)
-    funding.status = "failed"
-    funding.save()
-    return Response({"message": "Fund request rejected"})
-
-
-@api_view(["GET"])
-@permission_classes([IsAdminUser])
 def admin_list_services(request):
     return Response({
         "electricity": list(ElectricityProvider.objects.all().values("id", "name", "code", "is_active")),
@@ -233,52 +197,3 @@ def admin_update_service(request, service_type, pk):
     return Response({"message": "Service updated"})
 
 
-@api_view(["POST"])
-@permission_classes([IsAuthenticated])
-def user_submit_fund_request(request):
-    """User submits a manual fund request after bank transfer."""
-    amount = request.data.get("amount")
-    phone = request.data.get("phone", "")
-    reference = request.data.get("reference", "")
-
-    if not amount:
-        return Response({"error": "Amount is required"}, status=400)
-    try:
-        amount = Decimal(str(amount))
-    except Exception:
-        return Response({"error": "Invalid amount"}, status=400)
-
-    from uuid import uuid4
-    ref = reference or uuid4().hex[:16]
-
-    funding = WalletFunding.objects.create(
-        user=request.user,
-        amount=amount,
-        reference=ref,
-        status="pending"
-    )
-    return Response({
-        "message": "Fund request submitted. It will be reviewed shortly.",
-        "reference": ref,
-        "amount": str(amount),
-        "status": "pending"
-    }, status=201)
-
-
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def user_list_fund_requests(request):
-    """List the current user fund requests."""
-    page = int(request.query_params.get("page", 1))
-    page_size = 20
-    qs = WalletFunding.objects.filter(user=request.user).order_by("-created_at")
-    total = qs.count()
-    start = (page - 1) * page_size
-    end = start + page_size
-    results = list(qs[start:end].values("id", "amount", "reference", "status", "created_at"))
-    return Response({
-        "count": total,
-        "next": None if end >= total else f"?page={page+1}",
-        "previous": None if page <= 1 else f"?page={page-1}",
-        "results": results
-    })

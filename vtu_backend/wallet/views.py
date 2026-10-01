@@ -15,9 +15,9 @@ from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from .models import Wallet
+from .models import Wallet, WalletTransaction
 from .serializers import WalletSerializer
-from .monnify import MonnifyService
+from .paystack import PaystackService
 from core.permissions import IsOwner
 from users.models import User
 
@@ -51,7 +51,7 @@ class WalletViewSet(
 
         # Provision reserved account if not yet assigned
         if not wallet.account_number:
-            MonnifyService.get_or_create_reserved_account(wallet)
+            PaystackService.get_or_create_reserved_account(wallet)
             wallet.refresh_from_db()
 
         serializer = self.get_serializer(wallet)
@@ -60,54 +60,91 @@ class WalletViewSet(
 
 @csrf_exempt
 @api_view(['POST'])
-@permission_classes([])  # Must remain public for Monnify servers to access it
-def monnify_webhook_receiver(request):
+@permission_classes([])  # Must remain public for Paystack servers to access it
+def paystack_webhook_receiver(request):
     """
-    Secure webhook receiver that validates Monnify's HMAC SHA512 signature
-    and automatically credits the user's wallet on successful transfer.
+    Validates Paystack's HMAC SHA512 signature, then credits the user's wallet
+    when money lands in their dedicated virtual account. Idempotent per reference.
     """
-    payload = request.body
-    signature = request.META.get('HTTP_MONNIFY_SIGNATURE')
+    payload = request.body  # read raw body BEFORE touching request.data
+    signature = request.META.get('HTTP_X_PAYSTACK_SIGNATURE')
 
     if not signature:
-        logger.warning("Webhook rejected: Missing HTTP_MONNIFY_SIGNATURE")
+        logger.warning("Webhook rejected: missing x-paystack-signature")
         return HttpResponse(status=401)
 
-    # Verify signature is genuinely from Monnify
-    if not MonnifyService.verify_webhook_signature(payload, signature):
-        logger.warning("Webhook rejected: Signature mismatch")
+    if not PaystackService.verify_webhook_signature(payload, signature):
+        logger.warning("Webhook rejected: signature mismatch")
         return HttpResponse(status=401)
 
-    event_data = json.loads(payload)
-    event_type = event_data.get('eventType')
+    try:
+        event_data = json.loads(payload)
+    except ValueError:
+        return HttpResponse(status=400)
 
-    if event_type == 'SUCCESSFUL_TRANSACTION':
-        data = event_data.get('eventData', {})
+    event = event_data.get('event')
+    data = event_data.get('data') or {}
 
-        # Only process reserved account (virtual account) transfers
-        if data.get('paymentSourceInformation') or data.get('product', {}).get('type') == 'RESERVED_ACCOUNT':
-            customer_email = data.get('customer', {}).get('email')
-            amount_naira = Decimal(str(data.get('amountPaid', 0)))
-            reference = data.get('transactionReference', '')
+    # Account was assigned asynchronously
+    if event == 'dedicatedaccount.assign.success':
+        PaystackService.save_assigned_account(data)
+        return HttpResponse(status=200)
 
-            if not customer_email or amount_naira <= 0:
-                logger.warning(f"Webhook ignored: Invalid email or amount | Ref: {reference}")
+    if event != 'charge.success':
+        return HttpResponse(status=200)
+
+    reference = data.get('reference', '')
+    authorization = data.get('authorization') or {}
+    customer_email = (data.get('customer') or {}).get('email')
+
+    # Log the first real payloads you receive so you can confirm these fields
+    logger.info(f"Paystack charge.success | ref={reference} channel={data.get('channel')}")
+
+    # Find the wallet: by the virtual account number first, then by email
+    account_number = authorization.get('receiver_bank_account_number')
+    wallet = None
+    if account_number:
+        wallet = Wallet.objects.filter(account_number=account_number).first()
+    if wallet is None and data.get('channel') == 'dedicated_nuban' and customer_email:
+        wallet = Wallet.objects.filter(user__email__iexact=customer_email).first()
+
+    if wallet is None:
+        logger.warning(f"Webhook ignored: no wallet matched | Ref: {reference}")
+        return HttpResponse(status=200)
+
+    # Confirm with Paystack before moving money
+    verified = PaystackService.verify_transaction(reference)
+    if verified is None:
+        return HttpResponse(status=500)  # Paystack will retry later
+    if verified.get('status') != 'success' or verified.get('currency') != 'NGN':
+        logger.warning(f"Webhook ignored: verify not successful | Ref: {reference}")
+        return HttpResponse(status=200)
+
+    amount_naira = Decimal(str(verified.get('amount', 0))) / Decimal('100')  # kobo -> naira
+    if amount_naira <= 0:
+        return HttpResponse(status=200)
+
+    try:
+        with db_transaction.atomic():
+            locked = Wallet.objects.select_for_update().get(pk=wallet.pk)
+
+            # Idempotency: Paystack may deliver the same event more than once
+            if WalletTransaction.objects.filter(reference=reference).exists():
                 return HttpResponse(status=200)
 
-            try:
-                with db_transaction.atomic():
-                    user = User.objects.get(email=customer_email)
-                    user.wallet.credit(
-                        amount=amount_naira,
-                        description=f"Monnify Bank Transfer - Ref: {reference}"
-                    )
-                logger.info(f"Wallet credited ₦{amount_naira} for {customer_email} | Ref: {reference}")
+            locked.credit(
+                amount=amount_naira,
+                description=f"Paystack Bank Transfer - Ref: {reference}",
+                reference=reference,
+            )
+        logger.info(f"Wallet credited N{amount_naira} for {wallet.user.email} | Ref: {reference}")
 
-            except User.DoesNotExist:
-                logger.error(f"No user found for email: {customer_email}")
-                return HttpResponse(status=200)  # Return 200 so Monnify stops retrying
-            except Exception as e:
-                logger.error(f"Error crediting wallet: {str(e)}")
-                return HttpResponse(status=500)
+    except ValueError as e:
+        # e.g. max wallet balance exceeded - retrying will never fix it
+        logger.error(f"Could not credit wallet | Ref: {reference} | {e}")
+        return HttpResponse(status=200)
+    except Exception as e:
+        logger.error(f"Error crediting wallet: {e}", exc_info=True)
+        return HttpResponse(status=500)
 
     return HttpResponse(status=200)

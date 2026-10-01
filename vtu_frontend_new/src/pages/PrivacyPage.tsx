@@ -21,7 +21,7 @@ export function PrivacyPage() {
         </div>
         <div className="card">
           <h2 className="font-semibold text-ink mb-2">Security</h2>
-          <p>All transactions are secured with bank-grade encryption via Monnify. Your wallet PIN is hashed and never stored in plain text.</p>
+          <p>All transactions are secured with bank-grade encryption via Paystack. Your wallet PIN is hashed and never stored in plain text.</p>
         </div>
         <div className="card">
           <h2 className="font-semibold text-ink mb-2">Contact</h2>

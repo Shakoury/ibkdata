@@ -6,7 +6,6 @@ import type {
   PaginatedResponse,
   Transaction,
   User,
-  WalletFunding,
 } from '@/types';
 
 export const adminService = {
@@ -64,21 +63,6 @@ export const adminService = {
     note?: string;
   }): Promise<{ message: string }> => {
     const { data } = await api.post('/admin/wallet/adjust/', payload);
-    return data;
-  },
-
-  listPendingFundRequests: async (params?: { page?: number }): Promise<PaginatedResponse<WalletFunding>> => {
-    const { data } = await api.get('/admin/fund-requests/', { params });
-    return data;
-  },
-
-  approveFundRequest: async (id: string): Promise<{ message: string }> => {
-    const { data } = await api.post(`/admin/fund-requests/${id}/approve/`);
-    return data;
-  },
-
-  rejectFundRequest: async (id: string, reason: string): Promise<{ message: string }> => {
-    const { data } = await api.post(`/admin/fund-requests/${id}/reject/`, { reason });
     return data;
   },
 

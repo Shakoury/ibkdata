@@ -116,7 +116,7 @@ export function LandingPage() {
         <div className="space-y-3">
           {[
             { icon: Clock, title: "Instant Delivery", desc: "Transactions processed in seconds, 24/7." },
-            { icon: Shield, title: "Secure & Reliable", desc: "Bank-grade security with Monnify integration." },
+            { icon: Shield, title: "Secure & Reliable", desc: "Bank-grade security with Paystack integration." },
             { icon: Star, title: "Best Rates", desc: "Competitive prices on all VTU services." },
           ].map(({ icon: Icon, title, desc }) => (
             <div key={title} className="card flex items-center gap-4">

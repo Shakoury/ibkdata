@@ -70,7 +70,7 @@ class Wallet(models.Model):
         return self.balance - self.locked_balance
     
     @transaction.atomic
-    def credit(self, amount, description="Credit"):
+    def credit(self, amount, description="Credit", reference=None):
         """
         Credit wallet with atomic transaction
         Uses SELECT FOR UPDATE to prevent race conditions

@@ -12,10 +12,13 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-this-in-produc
 DEBUG = config('DEBUG', default=True, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
 
-# MONNIFY Configuration
-MONNIFY_API_KEY = os.getenv('MONNIFY_API_KEY')
-MONNIFY_SECRET_KEY = os.getenv('MONNIFY_SECRET_KEY')
-MONNIFY_CONTRACT_CODE = os.getenv('MONNIFY_CONTRACT_CODE')
+from dotenv import load_dotenv
+load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env"))
+
+# PAYSTACK Configuration
+PAYSTACK_SECRET_KEY = os.getenv('PAYSTACK_SECRET_KEY')
+PAYSTACK_PUBLIC_KEY = os.getenv('PAYSTACK_PUBLIC_KEY')
+PAYSTACK_DVA_BANK = os.getenv('PAYSTACK_DVA_BANK', 'wema-bank')  # use 'test-bank' with test keys
 
 # Application definition
 INSTALLED_APPS = [

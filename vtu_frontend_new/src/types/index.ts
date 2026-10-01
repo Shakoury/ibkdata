@@ -89,15 +89,6 @@ export interface PaginatedResponse<T> {
   results: T[];
 }
 
-export interface WalletFunding {
-  id: number;
-  user: string;
-  amount: number;
-  reference: string;
-  status: 'pending' | 'success' | 'failed';
-  created_at: string;
-}
-
 export interface Wallet {
   id: number;
   user: string;
@@ -190,7 +181,6 @@ export interface AdminStats {
   total_transactions: number;
   total_revenue: number;
   active_users: number;
-  pending_fund_requests: number;
 }
 
 export interface DailyVolume {

@@ -2,15 +2,7 @@ import { api } from './client';
 
 export const walletService = {
   getVirtualAccount: async () => {
-    const { data } = await api.get('/monnify/virtual-account/');
-    return data;
-  },
-  submitFundRequest: async (payload: { amount: number; phone: string; reference?: string }) => {
-    const { data } = await api.post('/fund-requests/submit/', payload);
-    return data;
-  },
-  getFundRequests: async () => {
-    const { data } = await api.get('/fund-requests/');
+    const { data } = await api.get('/paystack/virtual-account/');
     return data;
   },
   getHistory: async () => {

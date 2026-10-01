@@ -5,7 +5,7 @@ File: users/urls.py
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenRefreshView
-from wallet.views import WalletViewSet, monnify_webhook_receiver
+from wallet.views import WalletViewSet
 from .views import ChangePasswordView, ResendVerificationView, PasswordResetWithCodeView, SetTransactionPinView, ChangeTransactionPinView, VerifyTransactionPinView, RegisterView, UserProfileView, PasswordResetRequestView, PasswordResetConfirmView, CustomTokenObtainPairView, VerifyEmailCodeView
 
 # Register the WalletViewSet using a Rest Framework Router
@@ -36,6 +36,4 @@ urlpatterns = [
     # Includes WalletViewSet actions under /api/users/wallets/me/
     path('', include(router.urls)),
     
-    # Monnify Automated Bank Transfer Webhook Target
-    path('webhook/monnify/', name='monnify-webhook', view=monnify_webhook_receiver),
 ]

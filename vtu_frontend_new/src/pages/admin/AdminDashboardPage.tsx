@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { Users, ArrowLeftRight, DollarSign, Activity, Bell } from 'lucide-react';
+import { Users, ArrowLeftRight, DollarSign, Activity } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { adminService } from '@/api/services/admin';
 import { queryKeys } from '@/api/queryClient';
@@ -26,12 +26,6 @@ export function AdminDashboardPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Dashboard</h1>
-        {stats.data?.pending_fund_requests ? (
-          <div className="flex items-center gap-2 bg-accent/10 text-accent px-3 py-1.5 rounded-btn text-sm">
-            <Bell size={16} />
-            {stats.data.pending_fund_requests} pending fund requests
-          </div>
-        ) : null}
       </div>
 
       {stats.isLoading ? (

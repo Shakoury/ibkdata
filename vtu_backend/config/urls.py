@@ -11,7 +11,7 @@ from transactions.api import TransactionViewSet, TransactionStatusHistoryViewSet
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from core.views import home
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
-from wallet.views import monnify_webhook_receiver
+from wallet.views import paystack_webhook_receiver
 
 # Django REST Framework Router registration
 router = routers.DefaultRouter()
@@ -49,5 +49,5 @@ urlpatterns = [
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
 
        
-    path('webhook/monnify/', monnify_webhook_receiver),
+    path('webhook/paystack/', paystack_webhook_receiver),
 ]
