@@ -7,6 +7,11 @@ export const userService = {
     return data;
   },
 
+  getBalance: async (): Promise<{ balance: number }> => {
+    const { data } = await api.get('/users/me/');
+    return { balance: Number(data.balance) };
+  },
+
   updateProfile: async (payload: Partial<Pick<User, 'first_name' | 'last_name' | 'phone'>>): Promise<User> => {
     const { data } = await api.patch('/users/me/', payload);
     return data;
