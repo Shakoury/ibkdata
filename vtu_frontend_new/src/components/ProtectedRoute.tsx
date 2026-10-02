@@ -17,7 +17,7 @@ export function ProtectedRoute({ children, admin = false }: { children: React.Re
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (profile.isLoading && !user) return <FullScreenLoader />;
+  if (profile.isLoading || (!profile.data && !profile.isError)) return <FullScreenLoader />;
 
   if (admin && !profile.data?.is_staff) {
     return <Navigate to="/app" replace />;
