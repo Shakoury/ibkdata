@@ -11,3 +11,5 @@ dump.rdb
 vtu_db_backup.sql
 staticfiles/
 vtu_backend/.env
+logs/*.log
+logs/*.log
